@@ -1,30 +1,55 @@
 #pragma once
+
 #include <fstream>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 #include "../Models/Project_path.h"
 
+// Класс Config отвечает за загрузку и предоставление доступа к настройкам из файла JSON.
 class Config
 {
-  public:
+public:
+    // Конструктор класса Config. При создании объекта происходит загрузка конфигурации из файла.
     Config()
     {
-        reload();
+        reload(); // Вызывает функцию reload() для инициализации конфигурации при создании объекта
     }
 
+    /**
+     * Функция reload() загружает настройки из файла "settings.json".
+     *
+     * Эта функция открывает файл настроек, считывает его содержимое в формате JSON
+     * и сохраняет его в члене класса config.
+     * В случае успешного выполнения, новая конфигурация заменяет старую.
+     *
+     * Примечание: функция не обрабатывает случаи ошибок при открытии файла или
+     * парсинге JSON, что может привести к проблемам, если файл отсутствует или повреждён.
+     */
     void reload()
     {
-        std::ifstream fin(project_path + "settings.json");
-        fin >> config;
-        fin.close();
+        std::ifstream fin(project_path + "settings.json"); // Открытие файла настроек
+        fin >> config; // Считывание содержимого файла в объект JSON
+        fin.close(); // Закрытие файла
     }
 
-    auto operator()(const string &setting_dir, const string &setting_name) const
+    /**
+     * Оператор круглых скобок, который позволяет удобный доступ к настройкам конфигурации.
+     *
+     * Данный оператор позволяет использовать объект класса Config как функцию,
+     * передавая путь к директории настроек и имя конкретной настройки в качестве аргументов.
+     * Пример использования: config("WindowSize", "Width") вернёт значение ширины окна.
+     *
+     * @param setting_dir Директория, содержащая настройки (например, "WindowSize").
+     * @param setting_name Имя конкретной настройки (например, "Width").
+     *
+     * @return Возвращает значение настройки по указанному пути.
+     */
+    auto operator()(const std::string& setting_dir, const std::string& setting_name) const
     {
-        return config[setting_dir][setting_name];
+        return config[setting_dir][setting_name]; // Возврат значения настройки из JSON-объекта
     }
 
-  private:
-    json config;
+private:
+    json config; // Объект JSON, хранящий настройки из файла
 };
